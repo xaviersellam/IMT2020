@@ -48,6 +48,7 @@ namespace QuantLib {
             virtual Disposable<Array> drift(const StochasticProcess&,
                                             Time t0, const Array& x0,
                                             Time dt) const = 0;
+
             virtual Disposable<Matrix> diffusion(
                                               const StochasticProcess&,
                                               Time t0, const Array& x0,

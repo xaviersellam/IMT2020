@@ -72,11 +72,17 @@ namespace QuantLib {
             TimeGrid grid = this->timeGrid();
             typename RNG::rsg_type generator =
                 RNG::make_sequence_generator(dimensions*(grid.size()-1),seed_);
-            if (constantparameters){
-                    path_generator_2(100.0,100.0,process_.GetriskfreeTS(),process_.GetblackVoltTS(),1.0,process_.GetdividendTS())
 
+            ext::shared_ptr<StochasticProcess1D> usedProcess;
+            if (constantparameters){
+                    Real S = process_->x0();
+                    Rate r = process_->riskFreeRate()->zeroRate(grid.back(), Continuous);
+                    Volatility v = process_->blackVolatility()->blackVol(grid.back(), Continuous);
+                    Rate q = process_->dividendYield()->zeroRate(grid.back(), Continuous);
+                    usedProcess = ext::make_shared<ConstantBSProcess>(S, r, v, q);
+            }else{
+                usedProcess = process_;
             }
-            else{
             return ext::shared_ptr<path_generator_type>(
                    new path_generator_type(process_, grid,
                                            generator, brownianBridge_));}

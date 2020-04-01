@@ -3,14 +3,16 @@
 #include "mceuropeanengine.hpp"
 #include <ql/pricingengines/vanilla/mceuropeanengine.hpp>
 #include <ql/quantlib.hpp>
+#include <mcvanillaengine.hpp>
 #include <iostream>
 #include <cmath>
 #include <algorithm>
+#include <chrono>
 
 using namespace QuantLib;
 
 
-double d_j(const int& j, const double& S, const double& K, const double& r, const double& v, const double& T) {
+/**double d_j(const int& j, const double& S, const double& K, const double& r, const double& v, const double& T) {
 return (log(S/K) + (r + (pow(-1,j-1))*0.5*v*v)*T)/(v*(pow(T,0.5)));
 
 }
@@ -25,28 +27,78 @@ return -S*norm_cdf(-d_j(1, S, K, r, v, T))+K*exp(-r*T) * norm_cdf(-d_j(2, S, K, 
 
 }
 
+**/
+int main() {
+     try {
+    	auto start = std::chrono::steady_clock::now();
 
-int main(int argc, char **argv) {
+        // set up dates
+        Calendar calendar = TARGET();
+        Date todaysDate(20, September, 1997);
+        Date settlementDate(22, September, 1997);
+        Settings::instance().evaluationDate() = todaysDate;
 
-double S = 100.0;
-double K = 100.0;
-double r = 0.05;
-double v = 0.30;
-double T = 1.0;
-double q = 0.0;
+        // our options
+        Option::Type type(Option::Put);
+        Real S = 20;
+        Real strike = 30;
+        Rate q = 0.00;
+        Rate r = 0.05;
+        Volatility v = 0.15;
+        Date maturity(22, September, 1998);
+        DayCounter dayCounter = Actual365Fixed();
 
-double call = call_price(S, K, r, v, T);
-double put = put_price(S, K, r, v, T);
-ConstantBSProcess ConstantBSProcess1;
-std::cout<<ConstantBSProcess1.drift()<<std::endl;
+        std::vector<Date> exerciseDates;
+        for (Integer i=1; i<=4; i++)
+            exerciseDates.push_back(settlementDate + 3*i*Months);
 
+        Handle<Quote> x0(
+            boost::shared_ptr<Quote>(new SimpleQuote(S)));
+
+        Handle<YieldTermStructure> riskFreeTS(
+            boost::shared_ptr<YieldTermStructure>(
+                new FlatForward(settlementDate, r, dayCounter)));
+        Handle<YieldTermStructure> dividendTS(
+            boost::shared_ptr<YieldTermStructure>(
+                new FlatForward(settlementDate, q, dayCounter)));
+        Handle<BlackVolTermStructure> blackVolTS(
+            boost::shared_ptr<BlackVolTermStructure>(
+                new BlackConstantVol(settlementDate, calendar, v,
+                                     dayCounter)));
+        boost::shared_ptr<GeneralizedBlackScholesProcess> bsProcess(
+                 new GeneralizedBlackScholesProcess(x0, q,
+                                               r, v));
+        //Pricing of a Vanilla Option
+        boost::shared_ptr<StrikedTypePayoff> payoff(
+                                        new PlainVanillaPayoff(type, strike));
+        boost::shared_ptr<Exercise> europeanExercise(
+                                         new EuropeanExercise(maturity));
+        VanillaOption europeanOption(payoff, europeanExercise);
+
+        // Monte Carlo Method:
+        int timeSteps = 20;
+        Size mcSeed = 42;
+
+	// Using the MCEuropeanEngine_2 from mceuropeanengine.hpp
+        boost::shared_ptr<PricingEngine> mcengine;
+        mcengine = MakeMCEuropeanEngine_2<PseudoRandom>(bsProcess)
+            .withSteps(timeSteps)
+            .withAbsoluteTolerance(0.02)
+            .withSeed(mcSeed)
+            .withconstantparameters(true);
+        europeanOption.setPricingEngine(mcengine);
+
+	// Total elapsed time
+	auto end = std::chrono::steady_clock::now();
+	std::cout << "Total elapsed time in milliseconds : "
+		<< std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
+		<< " ms" << std::endl;
 return 0;
 
 }
  /*
  int main() {
 
- try {
 
         // add your code here
 

@@ -1,13 +1,11 @@
 #include "ConstantBSProcess.h"
 #include "blackscholesprocess.hpp"
 
-ConstantBSProcess::ConstantBSProcess(double S, double K, double r, double v, double T, double q){
+ConstantBSProcess::ConstantBSProcess(Real S,Rate r,Volatility v,Rate q){
 S = 100.0;
-K = 100.0;
-r = GetriskfreeTS();
-v = GetblackVolTS();
-T = 1.0;
-q = GetdividendTS();
+r = process_->riskFreeRate()->zeroRate(grid.back(), Continuous);
+v = process_->blackVolatility()->blackVol(grid.back(), Continuous);
+q = process_->dividendYield()->zeroRate(grid.back(), Continuous);
 }
 
 
@@ -48,7 +46,7 @@ return (log(S/K) + (r + (pow(-1,j-1))*0.5*v*v)*T)/(v*(pow(T,0.5)));
 
 }
 
-double path_generator_2(const double& S, const double& K, const double& r, const double& v, const double& T) {
+/**double call_price(const double& S, const double& K, const double& r, const double& v, const double& T) {
 return S *norm_cdf(d_j(1, S, K, r, v, T))-K*exp(-r*T) * norm_cdf(d_j(2, S, K, r, v, T));
 
 }
@@ -58,11 +56,12 @@ return -S*norm_cdf(-d_j(1, S, K, r, v, T))+K*exp(-r*T) * norm_cdf(-d_j(2, S, K, 
 } **/
 
 
-virtual ConstantBSProcess :: Real drift(Time t,Real x){
-std::cout<<r<<std::endl;
+virtual ConstantBSProcess :: Real drift(Time t,Real x) const{
 return((r -0.5*v*v));}
 
-virtual ConstantBSProcess :: Real diffusion(Time t, Real x){
+virtual ConstantBSProcess :: Real diffusion(Time t, Real x) const{
 //    double k=gaussian_box_muller();
 return(v);}
 
+virtual ConstantBSProcess :: Real x0() const{
+return(S);}

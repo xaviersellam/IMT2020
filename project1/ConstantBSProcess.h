@@ -9,20 +9,18 @@ double norm_pdf(const double& x);
 
 namespace QuantLib {
 
-class ConstantBSProcess{ : public StochasticProcess1D {
+class ConstantBSProcess : public StochasticProcess1D {
     private:
-double S;
-double K;
-double r;
-double v;
-double T;
-double q;
+Real S;
+Rate r;
+Volatility v;
+Rate q;
 
     public:
-ConstantBSProcess(double S, double K, double r, double v, double T, double q);
-path_generator_2(const double& S, const double& K, const double& r, const double& v, const double& T) ;
-virtual Real diffusion(Time t, Real x);
-virtual Real drift(Time t,Real x);
+ConstantBSProcess(Real S,Rate r,Volatility v,Rate q);
+virtual Real diffusion(Time t, Real x) const;
+virtual Real drift(Time t,Real x) const;
+virtual Real x0() const;
 
 };
 };
