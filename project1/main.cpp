@@ -1,13 +1,16 @@
 
-#include "constantblackscholesprocess.hpp"
-#include "mceuropeanengine.hpp"
+#include <ConstantBSProcess.h>
+#include <mceuropeanengine.hpp>
 #include <ql/pricingengines/vanilla/mceuropeanengine.hpp>
 #include <ql/quantlib.hpp>
 #include <mcvanillaengine.hpp>
+#include <blackscholesprocess.hpp>
+#include <stochasticprocess.hpp>
 #include <iostream>
 #include <cmath>
 #include <algorithm>
 #include <chrono>
+#include <ctime>
 
 using namespace QuantLib;
 
@@ -30,7 +33,8 @@ return -S*norm_cdf(-d_j(1, S, K, r, v, T))+K*exp(-r*T) * norm_cdf(-d_j(2, S, K, 
 **/
 int main() {
      try {
-    	auto start = std::chrono::steady_clock::now();
+//        std::chrono::time_point<std::chrono::system_clock> start, end;
+//    	start = std::chrono::steady_clock::now();
 
         // set up dates
         Calendar calendar = TARGET();
@@ -65,9 +69,14 @@ int main() {
             boost::shared_ptr<BlackVolTermStructure>(
                 new BlackConstantVol(settlementDate, calendar, v,
                                      dayCounter)));
+        Handle<LocalVolTermStructure> localVolTS(
+            boost::shared_ptr<LocalVolTermStructure>(
+                new LocalConstantVol(settlementDate, calendar, v,
+                                     dayCounter)));
+
         boost::shared_ptr<GeneralizedBlackScholesProcess> bsProcess(
-                 new GeneralizedBlackScholesProcess(x0, q,
-                                               r, v));
+                 new GeneralizedBlackScholesProcess(x0, dividendTS,
+                                               riskFreeTS, blackVolTS, localVolTS));
         //Pricing of a Vanilla Option
         boost::shared_ptr<StrikedTypePayoff> payoff(
                                         new PlainVanillaPayoff(type, strike));
@@ -89,20 +98,10 @@ int main() {
         europeanOption.setPricingEngine(mcengine);
 
 	// Total elapsed time
-	auto end = std::chrono::steady_clock::now();
-	std::cout << "Total elapsed time in milliseconds : "
-		<< std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
-		<< " ms" << std::endl;
+//	end = std::chrono::steady_clock::now();
+//		<< std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
+//		<< " ms" << std::endl;
 return 0;
-
-}
- /*
- int main() {
-
-
-        // add your code here
-
-        return 0;
 
     } catch (std::exception& e) {
         std::cerr << e.what() << std::endl;
@@ -113,4 +112,3 @@ return 0;
     }
  }
 
-*/

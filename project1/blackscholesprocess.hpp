@@ -65,10 +65,6 @@ namespace QuantLib {
             const Handle<BlackVolTermStructure>& blackVolTS,
             const Handle<LocalVolTermStructure>& localVolTS);
 
-        Handle<YieldTermStructure> GetdividendTS();
-        Handle<YieldTermStructure> GetriskfreeTS();
-        Handle<YieldTermStructure> GetblackVolTS();
-
         //! \name StochasticProcess1D interface
         //@{
         Real x0() const;

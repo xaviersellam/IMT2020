@@ -64,15 +64,6 @@ namespace QuantLib {
         registerWith(blackVolatility_);
     }
 
-    GeneralizedBlackScholesProcess:: GetdividendTS()const{ //accessors to get the inputs for our constant BS process
-        return dividendTS ;
-    }
-    GeneralizedBlackScholesProcess:: GetriskfreeTS()const{
-        return riskfreeTS ;
-    }
-    GeneralizedBlackScholesProcess:: GetblackVolTS()const{
-        return blackVolTS ;
-    }
 
     Real GeneralizedBlackScholesProcess::x0() const {
         return x0_->value();

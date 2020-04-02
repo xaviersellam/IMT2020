@@ -22,8 +22,10 @@
 #ifndef quantlib_mcvanilla_engine_hpp
 #define quantlib_mcvanilla_engine_hpp
 
+
 #include <ql/pricingengines/mcsimulation.hpp>
 #include <ql/instruments/vanillaoption.hpp>
+#include <ConstantBSProcess.h>
 
 namespace QuantLib {
 

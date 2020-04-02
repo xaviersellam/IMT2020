@@ -32,6 +32,9 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Linker>
+			<Add library="C:/Users/xavie/Downloads/QuantLib-1.18/QuantLib-1.18" />
+		</Linker>
 		<Unit filename="ConstantBSProcess.cpp" />
 		<Unit filename="ConstantBSProcess.h" />
 		<Unit filename="blackscholesprocess.cpp" />

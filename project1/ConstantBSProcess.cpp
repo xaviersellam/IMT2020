@@ -1,5 +1,5 @@
-#include "ConstantBSProcess.h"
-#include "blackscholesprocess.hpp"
+#include <blackscholesprocess.hpp>
+#include <ConstantBSProcess.h>
 
 ConstantBSProcess::ConstantBSProcess(Real S,Rate r,Volatility v,Rate q){
 S = 100.0;
@@ -7,7 +7,6 @@ r = process_->riskFreeRate()->zeroRate(grid.back(), Continuous);
 v = process_->blackVolatility()->blackVol(grid.back(), Continuous);
 q = process_->dividendYield()->zeroRate(grid.back(), Continuous);
 }
-
 
 double norm_pdf(const double& x) {
 return (1.0/(pow(2*M_PI,0.5)))*exp(-0.5*x*x);
