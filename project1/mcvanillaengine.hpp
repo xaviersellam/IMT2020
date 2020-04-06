@@ -76,18 +76,20 @@ namespace QuantLib {
                 RNG::make_sequence_generator(dimensions*(grid.size()-1),seed_);
 
             ext::shared_ptr<StochasticProcess1D> usedProcess;
+            ext::shared_ptr<GeneralizedBlackScholesProcess> bsprocess = ext::dynamic_pointer_cast<GeneralizedBlackScholesProcess>(process_);
+
             if (constantparameters){
-                    Real S = process_->x0();
-                    Rate r = process_->riskFreeRate()->zeroRate(grid.back(), Continuous);
-                    Volatility v = process_->blackVolatility()->blackVol(grid.back(), Continuous);
-                    Rate q = process_->dividendYield()->zeroRate(grid.back(), Continuous);
+                    Real S = bsprocess->x0();
+                    Rate r = bsprocess->riskFreeRate()->zeroRate(grid.back(), Continuous);
+                    Volatility v = bsprocess->blackVolatility()->blackVol(grid.back(), Continuous);
+                    Rate q = bsprocess->dividendYield()->zeroRate(grid.back(), Continuous);
                     usedProcess = ext::make_shared<ConstantBSProcess>(S, r, v, q);
             }else{
                 usedProcess = process_;
             }
             return ext::shared_ptr<path_generator_type>(
                    new path_generator_type(process_, grid,
-                                           generator, brownianBridge_));}
+                                           generator, brownianBridge_));
         }
         result_type controlVariateValue() const;
         // data members
@@ -97,6 +99,7 @@ namespace QuantLib {
         Real requiredTolerance_;
         bool brownianBridge_;
         BigNatural seed_;
+        bool constantparameters_;
     };
 
 
@@ -109,13 +112,14 @@ namespace QuantLib {
                           Size timeStepsPerYear,
                           bool brownianBridge,
                           bool antitheticVariate,
+                          bool constantparameters,
                           bool controlVariate,
                           Size requiredSamples,
                           Real requiredTolerance,
                           Size maxSamples,
                           BigNatural seed)
     : McSimulation<MC,RNG,S>(antitheticVariate, controlVariate),
-      process_(process), timeSteps_(timeSteps),
+      process_(process), timeSteps_(timeSteps),constantparameters_(constantparameters),
       timeStepsPerYear_(timeStepsPerYear),
       requiredSamples_(requiredSamples), maxSamples_(maxSamples),
       requiredTolerance_(requiredTolerance),

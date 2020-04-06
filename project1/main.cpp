@@ -4,8 +4,8 @@
 #include <ql/pricingengines/vanilla/mceuropeanengine.hpp>
 #include <ql/quantlib.hpp>
 #include <mcvanillaengine.hpp>
-#include <blackscholesprocess.hpp>
-#include <stochasticprocess.hpp>
+#include <ql/processes/blackscholesprocess.hpp>
+#include <ql/stochasticprocess.hpp>
 #include <iostream>
 #include <cmath>
 #include <algorithm>
@@ -69,14 +69,10 @@ int main() {
             boost::shared_ptr<BlackVolTermStructure>(
                 new BlackConstantVol(settlementDate, calendar, v,
                                      dayCounter)));
-        Handle<LocalVolTermStructure> localVolTS(
-            boost::shared_ptr<LocalVolTermStructure>(
-                new LocalConstantVol(settlementDate, calendar, v,
-                                     dayCounter)));
 
         boost::shared_ptr<GeneralizedBlackScholesProcess> bsProcess(
                  new GeneralizedBlackScholesProcess(x0, dividendTS,
-                                               riskFreeTS, blackVolTS, localVolTS));
+                                               riskFreeTS, blackVolTS));
         //Pricing of a Vanilla Option
         boost::shared_ptr<StrikedTypePayoff> payoff(
                                         new PlainVanillaPayoff(type, strike));

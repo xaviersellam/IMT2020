@@ -87,6 +87,7 @@ namespace QuantLib {
       private:
         boost::shared_ptr<GeneralizedBlackScholesProcess> process_;
         bool antithetic_;
+        bool constantparameters_;
         Size steps_, stepsPerYear_, samples_, maxSamples_;
         Real tolerance_;
         bool brownianBridge_;
@@ -119,7 +120,7 @@ namespace QuantLib {
              Real requiredTolerance,
              Size maxSamples,
              BigNatural seed,
-             bool constantparameters);
+             bool constantparameters)
     : MCVanillaEngine<SingleVariate,RNG,S>(process,
                                            timeSteps,
                                            timeStepsPerYear,
@@ -156,11 +157,10 @@ namespace QuantLib {
               process->riskFreeRate()->discount(this->timeGrid().back())));
     }
 
-
     template <class RNG, class S>
     inline MakeMCEuropeanEngine_2<RNG,S>::MakeMCEuropeanEngine_2(
              const boost::shared_ptr<GeneralizedBlackScholesProcess>& process)
-    : process_(process), antithetic_(false),
+    : process_(process), antithetic_(false),constantparameters_(false),
       steps_(Null<Size>()), stepsPerYear_(Null<Size>()),
       samples_(Null<Size>()), maxSamples_(Null<Size>()),
       tolerance_(Null<Real>()), brownianBridge_(false), seed_(0) {}
@@ -225,6 +225,12 @@ namespace QuantLib {
     inline MakeMCEuropeanEngine_2<RNG,S>&
     MakeMCEuropeanEngine_2<RNG,S>::withAntitheticVariate(bool b) {
         antithetic_ = b;
+        return *this;
+    }
+       template <class RNG, class S>
+    inline MakeMCEuropeanEngine_2<RNG,S>&
+    MakeMCEuropeanEngine_2<RNG,S>::withconstantparameters(bool constantparameters) {
+        constantparameters_ = constantparameters;
         return *this;
     }
 

@@ -42,8 +42,6 @@
 		<Unit filename="main.cpp" />
 		<Unit filename="mceuropeanengine.hpp" />
 		<Unit filename="mcvanillaengine.hpp" />
-		<Unit filename="stochasticprocess.cpp" />
-		<Unit filename="stochasticprocess.hpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />
