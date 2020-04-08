@@ -3,14 +3,9 @@
 #include <mceuropeanengine.hpp>
 #include <ql/pricingengines/vanilla/mceuropeanengine.hpp>
 #include <ql/quantlib.hpp>
-#include <mcvanillaengine.hpp>
 #include <ql/processes/blackscholesprocess.hpp>
-#include <ql/stochasticprocess.hpp>
+#include <time.h>
 #include <iostream>
-#include <cmath>
-#include <algorithm>
-#include <chrono>
-#include <ctime>
 
 using namespace QuantLib;
 
@@ -38,23 +33,17 @@ int main() {
 
         // set up dates
         Calendar calendar = TARGET();
-        Date todaysDate(20, September, 1997);
-        Date settlementDate(22, September, 1997);
-        Settings::instance().evaluationDate() = todaysDate;
+        Date maturity(20, September, 2019);
+        Date settlementDate(20, September, 2018);
+        DayCounter dayCounter = Actual365Fixed();
 
         // our options
-        Option::Type type(Option::Put);
-        Real S = 20;
-        Real strike = 30;
+        Real S = 90;
+        Real strike = 100;
         Rate q = 0.00;
         Rate r = 0.05;
         Volatility v = 0.15;
-        Date maturity(22, September, 1998);
-        DayCounter dayCounter = Actual365Fixed();
-
-        std::vector<Date> exerciseDates;
-        for (Integer i=1; i<=4; i++)
-            exerciseDates.push_back(settlementDate + 3*i*Months);
+        Option::Type type(Option::Call);
 
         Handle<Quote> x0(
             boost::shared_ptr<Quote>(new SimpleQuote(S)));
@@ -70,7 +59,7 @@ int main() {
                 new BlackConstantVol(settlementDate, calendar, v,
                                      dayCounter)));
 
-        boost::shared_ptr<GeneralizedBlackScholesProcess> bsProcess(
+        boost::shared_ptr<GeneralizedBlackScholesProcess> bsProcess = boost::shared_ptr<GeneralizedBlackScholesProcess>(
                  new GeneralizedBlackScholesProcess(x0, dividendTS,
                                                riskFreeTS, blackVolTS));
         //Pricing of a Vanilla Option
@@ -78,25 +67,64 @@ int main() {
                                         new PlainVanillaPayoff(type, strike));
         boost::shared_ptr<Exercise> europeanExercise(
                                          new EuropeanExercise(maturity));
+
         VanillaOption europeanOption(payoff, europeanExercise);
+        VanillaOption europeanOption_2(payoff, europeanExercise);
 
-        // Monte Carlo Method:
-        int timeSteps = 20;
-        Size mcSeed = 42;
+//set option
+		europeanOption.setPricingEngine(
+			boost::shared_ptr<PricingEngine>(
+				new AnalyticEuropeanEngine(bsProcess)
+				));
+		europeanOption_2.setPricingEngine(
+			boost::shared_ptr<PricingEngine>(
+				new AnalyticEuropeanEngine(bsProcess)
+				));
+		std::cout << "--------------------------------------------------------------------" << std::endl;
+		Real OptionPrice = europeanOption.NPV();
+		std::cout << "OptionPrice = europeanOption.NPV()=" << OptionPrice << std::endl;
+		std::cout << "--------------------------------------------------------------------" << std::endl;
+		std::cout << "--------------------------------------------------------------------" << std::endl;
+		std::cout << "MCEuropeanEngine with GeneralizedBlackScholesProcess" <<std::endl ;
 
-	// Using the MCEuropeanEngine_2 from mceuropeanengine.hpp
-        boost::shared_ptr<PricingEngine> mcengine;
-        mcengine = MakeMCEuropeanEngine_2<PseudoRandom>(bsProcess)
-            .withSteps(timeSteps)
-            .withAbsoluteTolerance(0.02)
-            .withSeed(mcSeed)
-            .withconstantparameters(true);
-        europeanOption.setPricingEngine(mcengine);
-
-	// Total elapsed time
-//	end = std::chrono::steady_clock::now();
-//		<< std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
-//		<< " ms" << std::endl;
+        europeanOption.setPricingEngine(
+			boost::shared_ptr<PricingEngine>(
+				new MCEuropeanEngine<PseudoRandom>(
+					bsProcess, 10,
+					Null<Size>(),
+					true,
+					false,
+					10000,
+					Null<Real>(),
+					Null<Size>(), SeedGenerator::instance().get()
+					))
+			);
+//Time Calcul
+        clock_t tStart = clock();
+		std::cout<<"Option Price " << europeanOption.NPV() << std::endl;
+		printf("Time taken: %.2fs\n", (double)(clock() - tStart) / CLOCKS_PER_SEC);
+		std::cout <<"Error Estimation "<< europeanOption.errorEstimate() << std::endl;
+		std::cout << "--------------------------------------------------------------------" << std::endl;
+		std::cout << "--------------------------------------------------------------------" << std::endl;
+		std::cout << "MCEuropeanEngine with constantBlackScholesModel" << std::endl;
+		europeanOption_2.setPricingEngine(
+			boost::shared_ptr<PricingEngine>(
+				new MCEuropeanEngine_2<PseudoRandom>(
+					bsProcess, 10,
+					Null<Size>(),
+					true,
+					false,
+					10000,
+					Null<Real>(),
+					Null<Size>(), SeedGenerator::instance().get()
+					))
+			);
+		clock_t tStart_2 = clock();
+		std::cout << "Option Price " << europeanOption_2.NPV() << std::endl;
+		printf("Time taken: %.2fs\n", (double)(clock() - tStart_2) / CLOCKS_PER_SEC);
+		std::cout << "Error Estimation " << europeanOption_2.errorEstimate() << std::endl;
+		std::cout << "----------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+		system("pause");
 return 0;
 
     } catch (std::exception& e) {
