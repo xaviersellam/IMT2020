@@ -93,7 +93,7 @@ namespace QuantLib {
                             boost::shared_ptr<ConstantBSProcess>(
 							new ConstantBSProcess(process->stateVariable(),process->riskFreeRate(),
                             process->blackVolatility(),process->dividendYield(),
-                            this->arguments_.exercise->lastDate(),
+                            this->arguments_.exercise->lastDate(), ext::dynamic_pointer_cast<StrikedTypePayoff>(this->arguments_.payoff)->strike(),
                             boost::shared_ptr<StochasticProcess1D::discretization>(new EulerDiscretization))),
 						grid,
 						generator,

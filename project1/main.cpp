@@ -1,4 +1,3 @@
-
 #include <ConstantBSProcess.h>
 #include <mceuropeanengine.hpp>
 #include <ql/pricingengines/vanilla/mceuropeanengine.hpp>
