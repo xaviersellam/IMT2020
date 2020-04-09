@@ -15,17 +15,18 @@ namespace QuantLib {
 
 class ConstantBSProcess : public StochasticProcess1D {
     private:
-Real S;
-Rate r;
-Volatility v;
-Rate q;
+Handle<Quote> S;
+Handle<YieldTermStructure> r;
+Handle<BlackVolTermStructure> v;
+Handle<YieldTermStructure> q;
 Date maturity;
 Real newr; //r that is calculated in constantBSPorcess.cpp
 Real newv;
 Real newq;
+Real strike;
 
     public:
-ConstantBSProcess(Real S,Rate r,Volatility v,Rate q,Date maturity,
+ConstantBSProcess(const Handle <Quote> S,const Handle<YieldTermStructure>& r,const Handle<BlackVolTermStructure>& v,const Handle<YieldTermStructure>& q, Date maturity,Real strike,
                   boost::shared_ptr<discretization>& d );
 
 Real diffusion(Time t, Real x) const;

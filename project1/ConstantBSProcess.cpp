@@ -9,13 +9,14 @@ using namespace std;
 
 namespace QuantLib {
 
-ConstantBSProcess::ConstantBSProcess(Real S,Rate& r,Volatility& v,Rate& q,Date maturity,
+ConstantBSProcess::ConstantBSProcess(const Handle<Quote> S,const Handle<YieldTermStructure>& r,const Handle<BlackVolTermStructure>& v,const Handle<YieldTermStructure>& q, Date maturity,Real strike,
                 boost::shared_ptr<discretization>& d )
                 : StochasticProcess1D(d),S(S), r(r), v(v), q(q){
                 maturity=maturity;
+                strike= ext::dynamic_pointer_cast<StrikedTypePayoff>(this->arguments_.payoff)->strike()
                 newr = r->zeroRate(maturity,r-> dayCounter(), Continuous,NoFrequency,true);
                 newq = q->zeroRate(maturity,q-> dayCounter(), Continuous,NoFrequency,true);
-                newv = v->blackVol(maturity, S->value());
+                newv = v->blackVol(maturity, S->value(),true);
 }
 
 
@@ -35,7 +36,7 @@ return(newv*x);
 }
 
 Real ConstantBSProcess :: x0() const{
-return(S);}
+return(S->value());}
 
 
 }
