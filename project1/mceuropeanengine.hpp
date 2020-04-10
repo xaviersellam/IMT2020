@@ -31,7 +31,7 @@
 #include <ql/termstructures/volatility/equityfx/blackconstantvol.hpp>
 #include <ql/termstructures/volatility/equityfx/blackvariancecurve.hpp>
 #include <ql/stochasticprocess.hpp>
-#include <ql/quantlib.hpp>
+#include <ql/termstructures/yieldtermstructure.hpp>
 #include <ql/processes/eulerdiscretization.hpp>
 #include <ConstantBSProcess.h>
 
@@ -78,11 +78,11 @@ namespace QuantLib {
             constantparameters = true;}
 
             boost::shared_ptr<path_generator_type> pathGenerator() const {
-			Size dimensions = process_->factors();
+            Size dimensions = MCVanillaEngine<SingleVariate,RNG,S>::process_->factors();
 
 			TimeGrid grid = this->timeGrid();
 			typename RNG::rsg_type generator =
-				RNG::make_sequence_generator(dimensions*(grid.size() - 1), seed_);
+				RNG::make_sequence_generator(dimensions*(grid.size() - 1),MCVanillaEngine<SingleVariate,RNG,S>::seed_);
 
 			if (this->constantparameters) {
 			boost::shared_ptr<GeneralizedBlackScholesProcess> process =
@@ -97,12 +97,15 @@ namespace QuantLib {
                             boost::shared_ptr<StochasticProcess1D::discretization>(new EulerDiscretization))),
 						grid,
 						generator,
-						brownianBridge_)
+                        MCVanillaEngine<SingleVariate,RNG,S>::brownianBridge_)
 					);
 
 			}
 			else {
-				return MCEuropeanEngine<RNG,S>::pathGenerator();
+
+            return ext::shared_ptr<path_generator_type>(
+                   new path_generator_type(MCVanillaEngine<SingleVariate,RNG,S>::process_, grid,
+                                           generator, MCVanillaEngine<SingleVariate,RNG,S>::brownianBridge_));
 			}
 		}
 

@@ -22,7 +22,7 @@ Real newq;
 
     public:
 ConstantBSProcess(const Handle <Quote> S,const Handle<YieldTermStructure>& r,const Handle<BlackVolTermStructure>& v,const Handle<YieldTermStructure>& q, Date maturity,Real strike,
-                  boost::shared_ptr<discretization>& d );
+                  boost::shared_ptr<discretization> d );
 
 Real diffusion(Time t, Real x) const;
 Real drift(Time t,Real x) const;

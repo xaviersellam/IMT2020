@@ -10,8 +10,8 @@ using namespace std;
 namespace QuantLib {
 
 ConstantBSProcess::ConstantBSProcess(const Handle<Quote> S,const Handle<YieldTermStructure>& r,const Handle<BlackVolTermStructure>& v,const Handle<YieldTermStructure>& q, Date maturity,Real strike,
-                boost::shared_ptr<discretization>& d )
-                : StochasticProcess1D(d){
+                boost::shared_ptr<discretization> d )
+                : StochasticProcess1D(d),S(S){
                 newr = r->zeroRate(maturity,r-> dayCounter(), Continuous,NoFrequency,true);
                 newq = q->zeroRate(maturity,q-> dayCounter(), Continuous,NoFrequency,true);
                 newv = v->blackVol(maturity, strike,true);

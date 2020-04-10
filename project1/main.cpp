@@ -35,6 +35,8 @@ int main() {
         Date maturity(20, September, 2019);
         Date settlementDate(20, September, 2018);
         DayCounter dayCounter = Actual365Fixed();
+        Settings::instance().evaluationDate() = settlementDate;
+
 
         // our options
         Real S = 90;
